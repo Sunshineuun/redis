@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: radis
+  redis:
+    host: 192.168.1.9
+    port: 6379
+    database: 0
+# redis lock config
+lock:
+  # 这里需要注意，如果加锁时间太短，会导致线程不加锁，然后线程一直等待，出现类似死锁的现象
+  wait-time: -1
+logging:
+  level:
+    root: info
+  config: classpath:logback-config.xml
+  file:
+    path: /tmp/logs
