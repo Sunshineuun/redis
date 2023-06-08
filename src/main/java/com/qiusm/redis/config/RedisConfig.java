@@ -19,11 +19,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
  * Jackson2Json 相对 FastJson 稍微慢一点
+ *
  * @author qiushengming
  */
 @Configuration
 @Slf4j
-//@ConditionalOnBean(value = RedisConnectionFactory.class)
 public class RedisConfig {
     /**
      * redis key value 序列化配置
@@ -32,13 +32,13 @@ public class RedisConfig {
      * @return
      */
     @Bean
-//    @ConditionalOnBean(value = RedisConnectionFactory.class)
-    public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> jackson2JsonRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         log.info("开始构建 RedisTemplate");
-        RedisTemplate<Object, Object> redisTemplate = new RedisTemplate<>();
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
         //配置序列化规则,jdk的序列化，对象必须实现Serializer接口jackson就不需要
-        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        Jackson2JsonRedisSerializer<Object> jackson2JsonRedisSerializer =
+                new Jackson2JsonRedisSerializer<>(Object.class);
         //实例化
         ObjectMapper objectMapper = new ObjectMapper();
         //全部属性都能实例化
@@ -61,16 +61,14 @@ public class RedisConfig {
      * key 已 string 的方式序列化，value 用 fastjson 进行序列化。类型自动转换。<br>
      */
     @Bean
-//    @ConditionalOnBean(value = RedisConnectionFactory.class)
-    public RedisTemplate<String, Object> strRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> fastjsonRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         // 配置连接工厂
         template.setConnectionFactory(redisConnectionFactory);
         // 配置 redis 与 spring 交互时可以达到自动转化为javabean。如果不配置则转化为JSONObject
         ParserConfig.getGlobalInstance().setAutoTypeSupport(true);
         // 白名单设置
-        ParserConfig.getGlobalInstance().addAccept("com.simmed.bcos2.dto.response.");
-        ParserConfig.getGlobalInstance().addAccept("com.simmed.bcos2.dto.org.");
+        ParserConfig.getGlobalInstance().addAccept("com.qiusm.redis.dto.");
         FastJsonConfig fastJsonConfig = new FastJsonConfig();
         fastJsonConfig.setSerializerFeatures(SerializerFeature.WriteClassName);
 
@@ -96,7 +94,7 @@ public class RedisConfig {
      */
     @Bean
     public HashOperations<String, String, Object> hashOperations(
-            @Qualifier(value = "strRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
+            @Qualifier(value = "jackson2JsonRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForHash();
     }
 
@@ -105,7 +103,7 @@ public class RedisConfig {
      */
     @Bean
     public ValueOperations<String, Object> valueOperations(
-            @Qualifier(value = "strRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
+            @Qualifier(value = "jackson2JsonRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForValue();
     }
 
@@ -114,7 +112,7 @@ public class RedisConfig {
      */
     @Bean
     public ListOperations<String, Object> listOperations(
-            @Qualifier(value = "strRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
+            @Qualifier(value = "jackson2JsonRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForList();
     }
 
@@ -123,7 +121,7 @@ public class RedisConfig {
      */
     @Bean
     public SetOperations<String, Object> setOperations(
-            @Qualifier(value = "strRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
+            @Qualifier(value = "jackson2JsonRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForSet();
     }
 
@@ -132,7 +130,7 @@ public class RedisConfig {
      */
     @Bean
     public ZSetOperations<String, Object> zSetOperations(
-            @Qualifier(value = "strRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
+            @Qualifier(value = "jackson2JsonRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
         return redisTemplate.opsForZSet();
     }
 }

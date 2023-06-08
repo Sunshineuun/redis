@@ -23,7 +23,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 @Service
-//@ConditionalOnBean(value = RedisTemplate.class)
 public class RedisServiceImpl implements IRedisService, InitializingBean {
     @Resource
     private RedisTemplate<Object, Object> redisTemplate;

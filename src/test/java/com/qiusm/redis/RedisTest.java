@@ -57,4 +57,6 @@ public class RedisTest extends RedisApplicationTests {
             e.printStackTrace();
         }
     }
+
+
 }

@@ -2,9 +2,63 @@ spring:
   application:
     name: radis
   redis:
-    host: 192.168.1.9
-    port: 6379
-    database: 0
+    host: 118.89.94.126
+    port: 6381
+    database: 1
+    jedis:
+      pool:
+        enabled: true
+        max-active: 50
+        min-idle: 50
+    lettuce:
+      pool:
+        enabled: false
+#    password: 123456
+  task:
+    scheduling:
+      shutdown:
+        await-termination: true
+    execution:
+      shutdown:
+        await-termination: true
+  rabbitmq:
+    host: 118.89.94.126
+    port: 5672
+    username: uunrabbitmq
+    password: uunrabbitmq123
+    listener:
+      simple:
+        batch-size: 10
+        consumer-batch-enabled: false
+  kafka:
+    bootstrap-servers: 118.89.94.126:9092
+    producer:
+#      # 重试次数
+#      retries: 1
+#      # 应答级别:多少个分区副本备份完成时向生产者发送ack确认(可选0、1、all/-1)
+#      acks: 1
+#      # 批量大小
+#      batch-size: 16384
+#      buffer-memory: 33554432
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+#      enable-auto-commit: true
+#      auto-commit-interval: 1000
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      group-id: uun
+#      # 批量消费每次最多消费多少条消息
+#      max-poll-records: 50
+#    listener:
+#      missing-topics-fatal: false
+#      # 批量消费
+#      type: batch
+  data:
+    mongodb:
+#      mongodb://用户名:密码@服务器IP:端口/数据库名
+      uri: mongodb://118.89.94.126:27017/uun
+
 # redis lock config
 lock:
   # 这里需要注意，如果加锁时间太短，会导致线程不加锁，然后线程一直等待，出现类似死锁的现象
@@ -15,3 +69,13 @@ logging:
   config: classpath:logback-config.xml
   file:
     path: /tmp/logs
+
+server:
+  port: 8005
+  undertow:
+    threads:
+      io: 16
+      worker: 1024
+  tomcat:
+    threads:
+      max: 200
